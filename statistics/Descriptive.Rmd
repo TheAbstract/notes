@@ -1,0 +1,88 @@
+---
+title: "Descriptive Statistics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Measures of central tendency
+
+* `mean(x)` "average"
+* `median(x)` middle of ordered data set | good when working with data sets with outliers
+
+```{r}
+x <- c(4, 3, 1, 6, 1, 7)
+mean(x)
+median(x)
+```
+## Sample mean vs population mean
+
+$$
+\bar{x} = \frac{\sum_{i=1}^{n}x_i}{n}, \quad \mu = \frac{\sum_{i=1}^{N}x_i}{N} \\
+\text{where, } n \subset N.
+$$
+
+Mean height of women in RSA? Approximately 30m women in SA. 
+
+- Measure all => population mean (clearly not feasible).
+- Take a random sample and compute mean of this group => sample mean.
+
+**Key idea:** In statistics we are always trying to use information from samples to infer something about a population. Our goal is this; given an unknown parameter $\mu$, we want to compute statistics on the sample in order to estimate parameters for a whole population.
+
+## Box-and-whiskers plots
+
+```{r}
+boxplot(x)
+```
+
+The `boxplot()` function splits data into quartiles where;
+
+- whiskers = range of data points
+- line in box = median
+- Bottom/left edge of box = median of data below the median (1st quartile)
+- Top/right edge of box = median of data above the median (3rd quartile)
+
+## Measures of dispersion
+
+Consider the following data sets;
+```{r}
+a <- c(-10, 0, 10, 20, 30)
+b <- c(8, 9, 10, 11, 12)
+```
+Note that the mean of both data sets is 10 but clearly they are different, the measures of dispersion reveal this difference. There are three general measures of dispersion;
+
+1. Range
+2. Variance
+3. Standard deviation
+
+```{r}
+range(a)
+range(b)
+```
+The variance is computed as follows;
+$$
+\begin{align}
+\sigma^2_a &= \frac{\sum_{i=1}^{N} (x_i - \mu)^2}{N} \\
+  &= \frac{(-10 - 10)^2 + (0 - 10)^2 + (10 - 10)^2 + (20 -10)^2 + (30 - 10)^2}{5} \\
+  &= \frac{400 + 100 + 0 + 100 + 400}{5} \\
+  &= \frac{1000}{5} = 200
+\end{align}
+$$
+and the standard deviation $:= \sqrt{\sigma^2_a} = \sigma_a$ and therefore $\sigma_a = \sqrt{200} = \sqrt{100 \times 2} = 10\sqrt{2}$.
+
+Similarly $\sigma_b = \sqrt{2}$.
+```{r}
+var(a)
+var(b)
+
+sd(a)
+sd(b)
+```
+From the standard deviation we can clearly see that the data in `a` is much more widely dispersed than that in `b`.
+
+Note that the sample variance is given by;
+$$
+S^2 = \frac{\sum_{i=1}^{n} (x_i - \bar x)^2}{n - 1}.
+$$
+Since the square root function is non-linear it turns out that the standard deviation is a biased estimator of the true (population) standard deviation, even though $\sigma^2$ is unbiased.

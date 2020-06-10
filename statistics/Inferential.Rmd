@@ -1,0 +1,152 @@
+---
+title: "Inferential Statistics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Introduction to Inferential Statistics
+
+> infer | ɪnˈfəː |
+verb (infers, inferring, inferred) [with object]
+deduce or conclude (something) from evidence and reasoning rather than from explicit statements: [with clause] : from these facts we can infer that crime has been increasing.
+
+## Gaussian Distribution
+The probability density function of the Gaussian distribution with mean $\mu$ and standard deviation $\sigma$ is given by
+$$
+P(x) = \frac{1}{\sqrt{2 π \sigma^2}} e^{-\frac{1}{2} (\frac{x - \mu}{\sigma})^{2}}
+$$
+```{r}
+x <- seq(-10, 10, length = 1000)
+y <- dnorm(x)
+plot(x, y, type = "l")
+```
+
+Cumulative density function;
+$$
+\phi(x) = \int_{-∞}^{∞} P(x)dx
+$$
+```{r}
+x <- seq(-5, 5, length = 100)
+y <- dnorm(x)
+plot(x, y, type = "l")
+
+x <- seq(-5, 1, length = 100)
+y <- dnorm(x)
+polygon(c(-5, x, 1), c(0, y, 0), col = "gray")
+```
+
+```{r}
+x <- seq(-5, 5, 0.01)
+probDensity <- dnorm(x)
+plot(x, probDensity, xlab = "", ylab = "Density", type = "l", main = "PDF of Standard Gaussian")
+```
+
+```{r}
+cumuDistribution <- pnorm(x)
+plot(x, cumuDistribution, xlab = "", ylab = "Cumulative Probability", type = "l", main = "CDF of Standard Gaussian")
+```
+
+```{r}
+set.seed(42)
+hist(rnorm(1000,0,1), main = "Random draws from Std Normal", xlim = c(-4,4))
+```
+
+```{r}
+y <- 2 * x + rnorm(length(x), 0, 5)
+hist(y, prob = TRUE, breaks = 20)
+curve(dnorm(x, mean(y), sd(y)), add = TRUE)
+```
+
+## Z-score and the empirical rule
+The number of standard deviations away from the mean is given by the z-score;
+$$
+  \frac{x - \mu}{\sigma}.
+$$
+The empirical rule: $\sigma \in 68.3, 2\sigma \in 95, 3\sigma \in 99.7$.
+
+> Suppose the mean weight of one year olds in kilograms is $\mu = 9.5$, with $\sigma = 1.1$. Without a calculator, estimate the percentage of one year olds that are;
+>
+i. Less that $8.4$
+ii. Between $7.3$ and $11.7$
+iii. More than $12.8$
+
+Answers;
+
+i. $P(\mu ± \sigma) = 68$, so $100 - 68 = 32$, the probability of being less that $8.4$ is $32/2 = 16\%$
+ii. $P(\mu ± 2\sigma) = 95\%$
+iii. $P(\mu ± 3\sigma) = 99.7$, so $100 - 99.7 = 0.3$ and thus percentage that weight more than $12.8$ is $0.3/2 = 0.15\%$
+
+## Confidence Intervals
+*KA questions*
+
+> You sample 36 apples from your farms harvest of over 200,000 apples. The mean weight of the sample is 122 grams, with a standard deviation of 40 grams. What is the probability that the mean weight of all 200,000 apples is within 100 and 124 grams?
+
+The question is basically asking this;
+$$
+\begin{align}
+  P(100 ≤ \mu ≤ 124) &= P(\mu \text{ is within 12 of } \bar{x}) \\
+    &= P(\bar{x} \text{ is within 12 of } \mu) \\
+    &= P(\bar{x} \text{ is within 12 of } \mu_{\bar{x}}) \\
+    &=  P(\bar{x} = \mu_{\bar{x}} ± 12). \\
+\end{align}
+$$
+What we have to do is compute how many standard deviations 12 is from $\mu_{\bar{x}}$ and then use the z-table to get the probability;
+$$
+\begin{align}
+  \sigma_{\bar{x}}^{2} &= \frac{\sigma^{2}}{n} \implies \sigma_{\bar{x}} = \frac{\sigma}{\sqrt{n}} ≈ \frac{s}{\sqrt{n}} \\
+\text{z-score} &= \frac{x - \mu}{\sigma}.
+\end{align}
+$$
+The z-score in this case is $12 / \sigma_{\bar{x}}$, so the actual question is now, what is?
+$$
+  P(\bar{x} \text{ is within 1.8 standard deviations of } \mu_{\bar{x}})
+$$
+
+```{r}
+n <- 36
+s <- 40
+sd_x <- s / sqrt(n)
+z <- 12 / sd_x
+pnorm(z)
+```
+Now to get the range
+```{r}
+(pnorm(z) - 0.5) * 2
+```
+There is a 92.81% chance that the population mean $\mu$ is within 12 of the sample mean. Or put another way we can be 92.81% confident that the actual mean is within 100 and 124 grams.
+
+## Bernoulli distribution
+
+The Bernoulli distribution is the simplest case of the binomial distribution.
+Consider a poll/survey, were responses are 60% favourable and 40 unfavourable.
+
+Given a population $N$ where the probability of success (1) has probability $p$, that of failure (0) has probability $p - 1$. Then $E[X] = \mu = (1 - p)0 + p = p$, and 
+$$
+\begin{align}
+  \sigma^2 &= (1 - p)(0 - p)^2 + p(1 - p)^2 \\
+    &= (1 - p)p^2 + p(1 - 2p + p^2) \\
+    &= p^2 - p^3 + p - 2p^2 + p^3 \\
+    &= p - p^2 \\
+    &= p(1 - p)
+\end{align}
+$$
+In a election with two candidates A and B, the probability of voters going to vote for B is $p$ and for A is $1 - p$. Let 1 be sampling someone going to vote for B and 0 for A.
+Suppose we randomly sample 100 voters form a electorate of 20 million; with 57 indicating their going to vote for A and 43 for B.
+```{r}
+n <- 100
+x <- 43 / n
+s2 <- (57*(0 - x)^2 + 43*(1 - x)^2) / (n - 1)
+s <- sqrt(s2)
+s
+```
+In what interval can we be 95% confident that the true mean $(\mu)$ is within the sample mean $(\bar{x})$ ? From the empirical rule we know that;
+$$
+  P(\mu = \bar{x} ± 2\sigma_\bar{x}) = 95.4\% = P(p = \bar{x} ± 2(0.05)).
+$$
+```{r}
+sd_x <- s / sqrt(n)
+```
+Therefore we expect $(0.43 - 0.1) ≤ p ≤ (0.43 + 0.1)$, so 43% will vote for B and 57% for A with a margin of error of 0.1 = 10%.
+
